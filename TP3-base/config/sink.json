@@ -5,14 +5,12 @@
         "connector.class": "io.confluent.connect.jdbc.JdbcSinkConnector",
         "dialect.name": "PostgreSqlDatabaseDialect",
         "tasks.max": "1",
-        "topics": "Proj3TripsCountPerRouteOutputStreamsTopic,Proj3ExpensesPerSockPairOutputStreamsTopic,Proj3ProfitPerSockPairOutputStreamsTopic,Proj3TotalRevenueOutputStreamsTopic,Proj3TotalExpensesOutputStreamsTopic,Proj3TotalProfitOutputStreamsTopic,Proj3AveragePurchasesPerKeyOutputStreamsTopic,Proj3AveragePurchasesAllKeysOutputStreamsTopic,Proj3HighestProfitOutputStreamsTopic,Proj3TotalRevenueWindowedOutputStreamsTopic,Proj3TotalExpensesWindowedOutputStreamsTopic,Proj3TotalProfitWindowedOutputStreamsTopic,Proj3SupplierHighestProfitSalesOutputStreamsTopic",
+        "topics": "output-revenue-per-item,output-expenses-per-item,output-profit-per-item,output-total-revenue,output-total-expenses,output-total-profit,output-purchase-averages,output-highest-profit-item,output-revenue-1hour,output-expenses-1hour,output-profit-1hour,output-highest-sales-country",
         "auto.create": "true",
-        "insert.mode": "upsert",
-        "pk.mode": "record_value",
-        "pk.fields": "id",
+        "insert.mode": "insert",
         "key.converter": "org.apache.kafka.connect.storage.StringConverter",
         "value.converter": "org.apache.kafka.connect.json.JsonConverter",
-        "key.converter.schemas.enable": "true",
-        "value.converter.schemas.enable": "true"
+        "key.converter.schemas.enable": "false",
+        "value.converter.schemas.enable": "false"
     }
 }

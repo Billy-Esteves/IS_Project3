@@ -1,10 +1,10 @@
-CREATE TABLE suppliers(
-   supplier_id SERIAL PRIMARY KEY,
-   supplier_name VARCHAR(40) NOT NULL
+CREATE TABLE items(
+    item_id SERIAL PRIMARY KEY,
+    item_name VARCHAR(40) NOT NULL
 );
-
-INSERT INTO suppliers (supplier_name) VALUES ('SMTUC');
-INSERT INTO suppliers (supplier_name) VALUES ('Metro Mondego');
-INSERT INTO suppliers (supplier_name) VALUES ('Coimbra Taxis');
-INSERT INTO suppliers (supplier_name) VALUES ('Bolt');
-INSERT INTO suppliers (supplier_name) VALUES ('Scooters Assassinas');
+CREATE TABLE countries(
+    country_id SERIAL PRIMARY KEY,
+    country_name VARCHAR(40) NOT NULL
+);
+INSERT INTO items (item_name) VALUES ('coffee'), ('tea'), ('bread'), ('milk');
+INSERT INTO countries (country_name) VALUES ('Portugal'), ('Spain'), ('France'), ('Germany');

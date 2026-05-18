@@ -1,5 +1,5 @@
 {
-    "name": "jdbc-source-suppliers-example",
+    "name": "jdbc-source-dbinfo",
     "config": {
         "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector",
         "connection.url": "jdbc:postgresql://database:5432/project3",
@@ -7,8 +7,8 @@
         "connection.password": "nopass",
         "dialect.name": "PostgreSqlDatabaseDialect",
         "mode": "bulk",
-        "query": "SELECT * FROM suppliers;",
+        "query": "SELECT 'item' AS type, item_name AS name FROM items UNION SELECT 'country' AS type, country_name AS name FROM countries;",
         "poll.interval.ms": "60000",
-        "topic.prefix": "project3fromDB"
+        "topic.prefix": "DBInfo"
     }
 }
