@@ -25,6 +25,39 @@ public class StatsController {
         return gson.toJson(result);
     }
 
+    public static String getRevenuePerItem() {
+        String query = "SELECT * FROM \"output-revenue-per-item\";";
+        return gson.toJson(DatabaseClient.executeQuery(query));
+    }
+
+    public static String getHighestProfitItem() {
+        String query = "SELECT * FROM \"output-highest-profit-item\";";
+        return gson.toJson(DatabaseClient.executeQuery(query));
+    }
+
+    public static String getExpensesPerItem() {
+        String query = "SELECT * FROM \"output-expenses-per-item\";";
+        return gson.toJson(DatabaseClient.executeQuery(query));
+    }
+
+    public static String getRevenueLastHour() {
+        String query = "SELECT * FROM \"output-revenue-1hour\";";
+        return gson.toJson(DatabaseClient.executeQuery(query));
+    }
+
+    public static String getPurchaseAverages() {
+        String query = "SELECT * FROM \"output-purchase-averages\";";
+        return gson.toJson(DatabaseClient.executeQuery(query));
+    }
+
+    public static String getItems() {
+        return gson.toJson(DatabaseClient.executeQuery("SELECT * FROM items;"));
+    }
+
+    public static String getCountries() {
+        return gson.toJson(DatabaseClient.executeQuery("SELECT * FROM countries;"));
+    }
+
     public static String getGenericTable(String tableName) {
         if (tableName == null || !tableName.matches("[a-zA-Z0-9-]+")) {
             return "{\"error\": \"Invalid table name\"}";
