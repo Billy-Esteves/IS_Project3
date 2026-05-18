@@ -105,15 +105,14 @@ public class Main {
         }
     }
 
-    // TODO: implement
-    /*
+
     private static void startCLI() {
         try {
             System.out.println("Starting CLI...");
-            CommandLineApp.run();
+            CommandLineApp.start();
         } catch (Exception e) {
             System.out.println("CLI not started (optional)");
         }
     }
-    */
+
 }

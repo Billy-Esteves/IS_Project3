@@ -37,4 +37,19 @@ public class DatabaseClient {
         }
         return resultList;
     }
+
+    public static boolean insertRecord(String tableName, String columnName, String value) {
+        String query = "INSERT INTO " + tableName + " (" + columnName + ") VALUES (?)";
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+            pstmt.setString(1, value);
+            pstmt.executeUpdate();
+            return true;
+
+        } catch (Exception e) {
+            System.err.println("DB Insert Error: " + e.getMessage());
+            return false;
+        }
+    }
 }
