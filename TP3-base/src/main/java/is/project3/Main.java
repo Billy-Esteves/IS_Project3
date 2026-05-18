@@ -1,3 +1,7 @@
+package is.project3;
+
+import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.StreamsConfig;
@@ -8,6 +12,7 @@ import is.project3.producers.PurchaseProducer;
 import is.project3.rest.RestServer;
 import is.project3.cli.CommandLineApp;
 
+import java.util.List;
 import java.util.Properties;
 
 public class Main {
@@ -26,7 +31,7 @@ public class Main {
 
         // TODO: implement
         // 3. START REST API (if implemented)
-        //startRest();
+        startRest();
 
         // TODO: implement
         // 4. START CLI (optional)
@@ -59,6 +64,19 @@ public class Main {
 
     private static void startStreams() {
         System.out.println("Starting Kafka Streams...");
+        Properties adminProps = new Properties();
+        adminProps.put("bootstrap.servers", "localhost:29092");
+        try (AdminClient admin = AdminClient.create(adminProps)) {
+            List<NewTopic> topics = List.of(
+                    new NewTopic("purchases-topic", 3, (short) 3),
+                    new NewTopic("sales-topic", 3, (short) 3),
+                    new NewTopic("DBInfo", 3, (short) 3)
+            );
+            admin.createTopics(topics);
+            Thread.sleep(2000); // poczekaj aż tematy się utworzą
+        } catch (Exception e) {
+            System.out.println("Topics may already exist: " + e.getMessage());
+        }
 
         Topology topology = AnalyticsTopology.build();
 
@@ -77,10 +95,7 @@ public class Main {
         System.out.println("Kafka Streams started.");
     }
 
-    
-    
-    // TODO: implement
-    /*
+
     private static void startRest() {
         try {
             System.out.println("Starting REST API...");
@@ -89,7 +104,6 @@ public class Main {
             System.out.println("REST not started (maybe not implemented yet)");
         }
     }
-    */
 
     // TODO: implement
     /*

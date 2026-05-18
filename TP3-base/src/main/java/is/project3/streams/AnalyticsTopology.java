@@ -1,6 +1,7 @@
 package is.project3.streams;
  
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.serialization.Serde;
@@ -46,7 +47,7 @@ public class AnalyticsTopology {
         }
  
         revenuePerItem.toStream()
-                .mapValues(v -> toJson("revenuePerItem", v))
+                .mapValues((key, v) -> toJsonWithSchema(key, v, "revenuePerItem"))
                 .to("output-revenue-per-item", Produced.with(Serdes.String(), Serdes.String()));
  
         // ============= EXPENSES PER ITEM =============
@@ -67,7 +68,7 @@ public class AnalyticsTopology {
         }
  
         expensesPerItem.toStream()
-                .mapValues(v -> toJson("expensesPerItem", v))
+                .mapValues((key, v) -> toJsonWithSchema(key, v, "expensesPerItem"))
                 .to("output-expenses-per-item", Produced.with(Serdes.String(), Serdes.String()));
  
         // ============= PROFIT PER ITEM =============
@@ -77,7 +78,7 @@ public class AnalyticsTopology {
         );
 
         profitPerItem.toStream()
-                .mapValues(v -> toJson("profitPerItem", v))
+                .mapValues((key, v) -> toJsonWithSchema(key, v, "profitPerItem"))
                 .to("output-profit-per-item", Produced.with(Serdes.String(), Serdes.String()));
  
         // ============= TOTAL REVENUE =============
@@ -96,7 +97,7 @@ public class AnalyticsTopology {
         }
 
         totalRevenue.toStream()
-                .mapValues(v -> toJson("totalRevenue", v))
+                .mapValues((key, v) -> toJsonWithSchema(key, v, "total_revenue"))
                 .to("output-total-revenue", Produced.with(Serdes.String(), Serdes.String()));
     
         // ============= AVERAGE AMOUNT SPENT PER PURCHASE =============
@@ -119,7 +120,7 @@ public class AnalyticsTopology {
                 );
  
         purchaseAverages.toStream()
-                .mapValues(stats -> toJson("averageAmountPerPurchase", stats[0] / stats[1]))
+                .mapValues((key, stats) -> toJsonWithSchema(key, stats[0] / stats[1], "average_spent"))
                 .to("output-purchase-averages", Produced.with(Serdes.String(), Serdes.String()));
 
         if (debug) {
@@ -152,7 +153,7 @@ public class AnalyticsTopology {
         }
  
         maxProfitTracker.toStream()
-                .mapValues(ip -> toJson("highestProfitItem", ip.item + " (" + String.format("%.2f", ip.profit) + ")"))
+                .mapValues((key, ip) -> toJsonWithSchema(key, ip.item + " (" + String.format("%.2f", ip.profit) + ")", "item_details"))
                 .to("output-highest-profit-item", Produced.with(Serdes.String(), Serdes.String()));
 
         
@@ -166,13 +167,8 @@ public class AnalyticsTopology {
                         Materialized.as("revenue-1hour-window")
                 )
                 .toStream()
-                .mapValues(v -> toJson("revenueLastHour", v))
-                .to("output-revenue-1hour", 
-                    Produced.with(
-                        WindowedSerdes.timeWindowedSerdeFrom(String.class),
-                        Serdes.String()
-                    )
-                );
+                .map((windowedKey, v) -> new KeyValue<>(windowedKey.key(), toJsonWithSchema(windowedKey.key(), v, "revenue_last_hour")))
+                .to("output-revenue-1hour", Produced.with(Serdes.String(), Serdes.String()));
 
         if (debug) {
             System.out.println("Debug: revenue-1hour-window KTable created");
@@ -223,11 +219,49 @@ public class AnalyticsTopology {
         }
  
         highestSalesCountry.toStream()
-                .mapValues(cs -> toJson("topCountry", cs.country + " (" + String.format("%.2f", cs.sales) + ")"))
+                .mapValues((key,cs) -> toJsonWithSchema(key, cs.country + " (" + String.format("%.2f", cs.sales) + ")", "top_country"))
                 .to("output-highest-sales-country", Produced.with(Serdes.String(), Serdes.String()));
         
         return builder.build();
      
+    }
+
+    // ============= JSON Helper WITH SCHEMA for Kafka Connect =============
+
+    private static String toJsonWithSchema(String key, Object value, String valueName) {
+        String k = (key != null) ? key : "unknown";
+        String v = (value != null) ? value.toString() : "0";
+
+        JsonObject schema = new JsonObject();
+        schema.addProperty("type", "struct");
+        schema.addProperty("optional", false);
+        schema.addProperty("name", "stats_record");
+
+        JsonArray fields = new JsonArray();
+
+        JsonObject field1 = new JsonObject();
+        field1.addProperty("type", "string");
+        field1.addProperty("optional", true);
+        field1.addProperty("field", "target"); // Nazwa przedmiotu (np. "coffee" albo "total")
+        fields.add(field1);
+
+        JsonObject field2 = new JsonObject();
+        field2.addProperty("type", "string");
+        field2.addProperty("optional", true);
+        field2.addProperty("field", valueName); // Wartość (np. profit albo revenue)
+        fields.add(field2);
+
+        schema.add("fields", fields);
+
+        JsonObject payload = new JsonObject();
+        payload.addProperty("target", k);
+        payload.addProperty(valueName, v);
+
+        JsonObject root = new JsonObject();
+        root.add("schema", schema);
+        root.add("payload", payload);
+
+        return root.toString();
     }
 
     // ============= Helper Classes =============

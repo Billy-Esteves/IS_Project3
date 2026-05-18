@@ -49,13 +49,12 @@ public class PurchaseProducer {
                             String type = jsonObj.get("type").getAsString();
                             String name = jsonObj.get("name").getAsString();
 
-                            // PurchaseProducer potrzebuje tylko przedmiotów (nie państw)
                             if ("item".equals(type) && !items.contains(name)) {
                                 items.add(name);
                                 System.out.println("[DB Integration] Added Item to PurchaseProducer: " + name);
                             }
                         } catch (Exception e) {
-                            // Ignoruj błędy parsowania
+
                         }
                     }
                 }

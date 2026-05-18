@@ -30,7 +30,6 @@ public class SalesProducer {
         Thread dbConsumerThread = new Thread(() -> {
             Properties consProps = new Properties();
             consProps.put("bootstrap.servers", "localhost:29092");
-            // Losowe GroupID zapewnia, że zawsze przy starcie przeczytamy topic DBInfo od samego początku
             consProps.put("group.id", "dbinfo-sales-group-" + UUID.randomUUID());
             consProps.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
             consProps.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
@@ -45,7 +44,6 @@ public class SalesProducer {
                     for (ConsumerRecord<String, String> record : records) {
                         try {
                             JsonObject jsonObj = gson.fromJson(record.value(), JsonObject.class);
-                            // Obsługa wrappera "payload" dodawanego domyślnie przez Kafka Connect
                             if (jsonObj.has("payload")) {
                                 jsonObj = jsonObj.getAsJsonObject("payload");
                             }
@@ -61,7 +59,7 @@ public class SalesProducer {
                                 System.out.println("[DB Integration] Added Country to SalesProducer: " + name);
                             }
                         } catch (Exception e) {
-                            // Ignoruj błędy parsowania (np. jeśli format rekordu byłby inny)
+
                         }
                     }
                 }

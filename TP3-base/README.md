@@ -10,6 +10,17 @@ docker compose -f docker-compose-cluster.yml up -d
 check if brokers are running:
 docker ps
 
+then load connectors:
+cd ../config
+$sourceJson = Get-Content -Raw -Path source.json
+Invoke-RestMethod -Uri "http://localhost:8083/connectors" -Method Post -ContentType "application/json" -Body $sourceJson
+
+$sinkJson = Get-Content -Raw -Path sink.json
+Invoke-RestMethod -Uri "http://localhost:8083/connectors" -Method Post -ContentType "application/json" -Body $sinkJson
+
+After this you can run Main.java
+
+
 you should see, among other results:
 609adb7c1749   confluentinc/cp-kafka:7.5.1       "/etc/confluent/dock…"   28 hours ago   Up 9 seconds                      9092/tcp, 0.0.0.0:29094->29094/tcp, [::]:29094->29094/tcp                       devcontainer-broker3-1
 7eb91f94d455   confluentinc/cp-kafka:7.5.1       "/etc/confluent/dock…"   28 hours ago   Up 9 seconds                      9092/tcp, 0.0.0.0:29093->29093/tcp, [::]:29093->29093/tcp                       devcontainer-broker2-1
